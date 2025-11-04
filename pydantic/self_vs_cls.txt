@@ -1,0 +1,12 @@
+| Feature     | Instance Method            | Class Method                                |
+| ----------- | -------------------------- | ------------------------------------------- |
+| Decorator   | None                       | `@classmethod`                              |
+| First Arg   | `self` (instance)          | `cls` (class)                               |
+| Called On   | An instance                | The class itself                            |
+| Purpose     | Act on existing model data | Create or modify model before instantiation |
+| Example Use | `user.save_to_db()`        | `User.from_json(json_data)`                 |
+
+
+Rule of thumb for Pydantic usage:
+Use instance methods when logic uses the model’s data.
+Use class methods when logic creates or returns a model.
