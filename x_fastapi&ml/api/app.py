@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, computed_field
 from typing import Literal, Annotated
@@ -84,8 +84,8 @@ app = FastAPI()
 class User(BaseModel):
 
     age: Annotated[int, Field(..., gt=0, lt=120, description="Age of the user")]
-    weight: Annotated[float, Field(..., gt=0, description="Weight of the user")]
-    height: Annotated[float, Field(..., gt=0, lt=2.5, description="Height of the user")]
+    weight: Annotated[float, Field(..., gt=0, description="Weight of the user in kg")]
+    height: Annotated[float, Field(..., gt=0, lt=250, description="Height of the user in cm")]
     income_lpa: Annotated[float, Field(..., gt=0, description="Salary of the user")]
     smoker: Annotated[bool, Field(..., description="User Smoke?")]
     city: Annotated[str, Field(..., description="Current city of the user")]
@@ -105,7 +105,9 @@ class User(BaseModel):
     @computed_field
     @property
     def bmi(self) -> float:
-        return self.weight / (self.height**2)
+        # Convert height from cm to meters for BMI calculation
+        height_in_meters = self.height / 100
+        return self.weight / (height_in_meters**2)
 
     @computed_field
     @property
@@ -119,7 +121,7 @@ class User(BaseModel):
 
     @computed_field
     @property
-    def age_group(self):
+    def age_group(self) -> str:
         if self.age < 25:
             return "young"
         elif self.age < 45:
@@ -130,13 +132,13 @@ class User(BaseModel):
 
     @computed_field
     @property
-    def city_tier(self):
+    def city_tier(self) -> int:
         if self.city in tier_1_cities:
             return 1
-        elif self.city in tier_2_cities:
-            return 2
+        # Map both tier 2 and tier 3 cities to tier 2 
+        # because the model was only trained with tier 1 and tier 2
         else:
-            return 3
+            return 2
 
 
 @app.get("/")
