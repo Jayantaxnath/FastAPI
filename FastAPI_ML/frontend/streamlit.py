@@ -42,7 +42,14 @@ if st.button("Predict Category"):
         response = requests.post(API_URL, json=input_data)
         if response.status_code == 200:
             result = response.json()
-            st.success(f"Predicted Category: {result['predicted_category']}")
+            prediction_data = result['response']
+            st.success(f"Predicted Category: {prediction_data['predicted_category']}")
+            st.info(f"Confidence: {prediction_data['confidence']:.2%}")
+            
+            # Display class probabilities
+            st.subheader("Class Probabilities:")
+            for category, probability in prediction_data['class_probabilities'].items():
+                st.write(f"- {category}: {probability:.2%}")
         else:
             st.error(f"API Error {response.status_code}: {response.text}")
     except requests.exceptions.ConnectionError:
